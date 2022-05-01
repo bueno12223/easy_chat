@@ -53,28 +53,30 @@ def put_sub_message(message_id, message, userEmail):
 
 def update_message(message_id, message):
     messages_ref = db.collection("messages")
-    return messages_ref.document(message_id).update(
+    messages_ref.document(message_id).update(
         {'message': message, 'isChanged': True})
+    return get_message(message_id)
 
 
 def update_sub_message(message_id, sub_message_id, message):
     sub_messages_ref = db.collection("messages").document(
         message_id).collection("sub_messages")
-    return sub_messages_ref.document(sub_message_id).update(
+    sub_messages_ref.document(sub_message_id).update(
         {'message': message, 'isChanged': True})
+    return get_message(message_id)
 
 
 def delete_message(message_id):
     messages_ref = db.collection("messages")
     messages_ref.document(message_id).delete()
-    return({'message_id': message_id})
+    return message_id
 
 
 def delete_sub_message(message_id, sub_message_id):
     sub_messages_ref = db.collection("messages").document(
         message_id).collection("sub_messages")
     sub_messages_ref.document(sub_message_id).delete()
-    return({'sub_message_id': sub_message_id})
+    return sub_message_id
 
 
 def get_sub_messages(messgaes_id):

@@ -39,7 +39,27 @@ def handle_put_sub_message(message):
 
 @socketio.on('update_message')
 def handle_update_message(message):
-    update_message(message['message_id'], message['message'])
+    res = update_message(message['message_id'], message['message'])
+    emit('update_message', res)
+
+
+@socketio.on('update_sub_message')
+def handle_update_sub_message(data):
+    res = update_sub_message(
+        data['message_id'], data['sub_message_id'], data['message'])
+    emit('update_sub_message', res)
+
+
+@socketio.on('delete_message')
+def handle_delete_message(message_id):
+    delete_message(message_id)
+    emit('delete_message', message_id)
+
+
+@socketio.on('delete_sub_message')
+def handle_delete_sub_message(data):
+    delete_sub_message(data['message_id'], data['sub_message_id'])
+    emit('delete_sub_message', data)
 
 
 if __name__ == '__main__':
