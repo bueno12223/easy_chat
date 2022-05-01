@@ -10,8 +10,8 @@
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
 <script>
   const socket = io();
-  socket.emit('message', {userEmail: 'jesus', message: 'hola'});
-  socket.on('message', data => {
+  socket.emit('sub_message', {message_id: 'XrXFchPlVvtAiC4tqP55', message: 'hola arribaaaaa', userEmail: 'jesus 2'});
+  socket.on('sub_message', data => {
     console.log(data);
   });
 </script>

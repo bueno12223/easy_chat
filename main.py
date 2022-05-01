@@ -1,5 +1,5 @@
 from flask import Flask, render_template
-from flask_socketio import SocketIO, send
+from flask_socketio import SocketIO, send, emit
 from app.firestore_service import get_messages, put_message, put_sub_message, update_message, update_sub_message, delete_message, delete_sub_message
 
 app = Flask(__name__)
@@ -21,15 +21,20 @@ def messages():
 @socketio.on('message')
 def handle_put_message(data):
     res = put_message(data['message'], data['userEmail'])
-    print(res)
     send(res, broadcast=True)
+
+
+@socketio.on('get_messages')
+def handle_get_messages():
+    messages = get_messages()
+    send(messages, broadcast=True)
 
 
 @socketio.on('sub_message')
 def handle_put_sub_message(message):
-    put_sub_message(message['message_id'],
-                    message['message'], message['userEmail'])
-    send(messages, broadcast=True)
+    res = put_sub_message(message['message_id'],
+                          message['message'], message['userEmail'])
+    emit('sub_message', res)
 
 
 @socketio.on('update_message')

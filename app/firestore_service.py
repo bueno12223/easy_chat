@@ -14,7 +14,24 @@ db = firestore.client()
 
 def get_messages():
     messgaes_ref = db.collection("messages")
-    return messgaes_ref.order_by("likes").get()
+    docs = messgaes_ref.order_by("likes").get()
+    data = []
+    for doc in docs:
+        sub_data = get_sub_messages(doc.id)
+        doc = doc.to_dict()
+        doc['sub_messages'] = sub_data
+        data.append(doc)
+
+    json_data = dumps(data)
+    return json_data
+
+
+def get_message(message_id):
+    messages_ref = db.collection("messages")
+    sub_data = get_sub_messages(message_id)
+    doc = messages_ref.document(message_id).get().to_dict()
+    doc['sub_messages'] = sub_data
+    return doc
 
 
 def put_message(message, userEmail):
@@ -28,9 +45,10 @@ def put_message(message, userEmail):
 def put_sub_message(message_id, message, userEmail):
     sub_messages_ref = db.collection("messages").document(
         message_id).collection("sub_messages")
-
-    return sub_messages_ref.add({'message': message, 'id': uuid.uuid4(
-    ), 'userEmail': userEmail, 'likes': 0, 'isChanged': False})
+    res = {'message': message, 'id': uuid.uuid4(
+    ).hex, 'userEmail': userEmail, 'likes': 0, 'isChanged': False, 'date': dumps(datetime.datetime.now(), default=json_serial)}
+    sub_messages_ref.add(res)
+    return get_message(message_id)
 
 
 def update_message(message_id, message):
@@ -57,3 +75,13 @@ def delete_sub_message(message_id, sub_message_id):
         message_id).collection("sub_messages")
     sub_messages_ref.document(sub_message_id).delete()
     return({'sub_message_id': sub_message_id})
+
+
+def get_sub_messages(messgaes_id):
+    sub_messages_ref = db.collection("messages").document(
+        messgaes_id).collection("sub_messages")
+    data = []
+    docs = sub_messages_ref.order_by("likes").get()
+    for doc in docs:
+        data.append(doc.to_dict())
+    return data
