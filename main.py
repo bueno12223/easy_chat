@@ -1,6 +1,6 @@
 from flask import Flask, render_template
 from flask_socketio import SocketIO, send, emit
-from app.firestore_service import get_messages, put_message, put_sub_message, update_message, update_sub_message, delete_message, delete_sub_message
+from app.firestore_service import get_messages, put_message, put_sub_message, update_message, update_sub_message, delete_message, delete_sub_message, like_message, like_sub_message
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
@@ -60,6 +60,19 @@ def handle_delete_message(message_id):
 def handle_delete_sub_message(data):
     delete_sub_message(data['message_id'], data['sub_message_id'])
     emit('delete_sub_message', data)
+
+
+@socketio.on('like_message')
+def handle_like_message(data):
+    like_message(data['message_id'], data['isLike'])
+    emit('like_message', data)
+
+
+@socketio.on('like_sub_message')
+def handle_like_sub_message(data):
+    like_sub_message(data['message_id'],
+                     data['sub_message_id'], data['isLike'])
+    emit('like_sub_message', data)
 
 
 if __name__ == '__main__':

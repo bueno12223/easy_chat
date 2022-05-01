@@ -10,8 +10,8 @@
     <script src="https://cdn.socket.io/4.5.0/socket.io.min.js" integrity="sha384-7EyYLQZgWBi67fBtVxw60/OWl1kjsfrPFcaU0pp0nAh+i8FD068QogUvg85Ewy1k" crossorigin="anonymous"></script>
 <script>
   const socket = io();
-  socket.emit('delete_sub_message', {message_id: 'XrXFchPlVvtAiC4tqP55', message: 'hola final', sub_message_id: '8dvM5YVgDXNenXJ4Pu8Z'});
-  socket.on('delete_sub_message', data => {
+  socket.emit('like_message', {message_id: 'XrXFchPlVvtAiC4tqP55', isLike: true, sub_message_id: '8dvM5YVgDXNenXJ4Pu8Z'});
+  socket.on('like_message', data => {
     console.log(data);
   });
 </script>
