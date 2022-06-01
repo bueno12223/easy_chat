@@ -4,7 +4,7 @@ from app.firestore_service import get_messages, put_message, put_sub_message, up
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret!'
-socketio = SocketIO(app)
+socketio = SocketIO(app,  cors_allowed_origins='*')
 
 
 @app.route('/')
@@ -21,33 +21,33 @@ def messages():
 @socketio.on('message')
 def handle_put_message(data):
     res = put_message(data['message'], data['userEmail'])
-    send(res, broadcast=True)
+    emit('get_messages', res)
 
 
 @socketio.on('get_messages')
 def handle_get_messages():
     messages = get_messages()
-    send(messages, broadcast=True)
+    emit('get_messages', messages)
 
 
 @socketio.on('sub_message')
 def handle_put_sub_message(message):
     res = put_sub_message(message['message_id'],
                           message['message'], message['userEmail'])
-    emit('sub_message', res)
+    emit('get_messages', res)
 
 
 @socketio.on('update_message')
 def handle_update_message(message):
     res = update_message(message['message_id'], message['message'])
-    emit('update_message', res)
+    emit('get_messages', res)
 
 
 @socketio.on('update_sub_message')
 def handle_update_sub_message(data):
     res = update_sub_message(
         data['message_id'], data['sub_message_id'], data['message'])
-    emit('update_sub_message', res)
+    emit('get_messages', res)
 
 
 @socketio.on('delete_message')
