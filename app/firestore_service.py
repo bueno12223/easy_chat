@@ -1,3 +1,4 @@
+from pickle import TRUE
 import uuid
 import datetime
 import firebase_admin
@@ -14,16 +15,22 @@ db = firestore.client()
 
 def get_messages():
     messgaes_ref = db.collection("messages")
-    docs = messgaes_ref.get()
+    docs = messgaes_ref.order_by(
+        'likes', direction=firestore.Query.DESCENDING).get()
     data = []
     for doc in docs:
         sub_data = get_sub_messages(doc.id)
         doc = doc.to_dict()
         doc['sub_messages'] = sub_data
         data.append(doc)
-
     json_data = dumps(data)
     return json_data
+
+
+def get_message(id):
+    messages_ref = db.collection("messages")
+    doc = messages_ref.document(id).get()
+    return doc.to_dict()
 
 
 def put_message(message, userEmail):
@@ -36,11 +43,12 @@ def put_message(message, userEmail):
 
 
 def put_sub_message(message_id, message, userEmail):
+    id = uuid.uuid4().hex
     sub_messages_ref = db.collection("messages").document(
-        message_id).collection("sub_messages")
-    res = {'message': message, 'id': uuid.uuid4(
-    ).hex, 'userEmail': userEmail, 'likes': 0, 'isChanged': False, 'date': datetime.datetime.now().timestamp()}
-    sub_messages_ref.add(res)
+        message_id).collection("sub_messages").document(id)
+    res = {'message': message, 'id': id, 'userEmail': userEmail, 'likes': 0,
+           'isChanged': False, 'date': datetime.datetime.now().timestamp()}
+    sub_messages_ref.set(res)
     return get_messages()
 
 
@@ -59,16 +67,15 @@ def update_sub_message(message_id, sub_message_id, message):
     return get_messages()
 
 
-def delete_message(message_id):
-    messages_ref = db.collection("messages")
-    messages_ref.document(message_id).delete()
-    return get_messages()
-
-
-def delete_sub_message(message_id, sub_message_id):
-    sub_messages_ref = db.collection("messages").document(
-        message_id).collection("sub_messages")
-    sub_messages_ref.document(sub_message_id).delete()
+def delete_message(message_id, sub_message_id):
+    # get message by id
+    if(sub_message_id is not None):
+        messages_ref = db.collection("messages")
+        messages_ref.document(message_id).delete()
+    else:
+        sub_messages_ref = db.collection(
+            "messages").document(message_id).collection("sub_messages")
+        sub_messages_ref.document(sub_message_id).delete()
     return get_messages()
 
 
@@ -79,7 +86,7 @@ def get_sub_messages(messgaes_id):
     docs = sub_messages_ref.order_by("likes").get()
     for doc in docs:
         data.append(doc.to_dict())
-    return get_messages()
+    return data
 
 
 def like_message(message_id, isLike):
