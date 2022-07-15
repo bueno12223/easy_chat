@@ -58,15 +58,15 @@ def handle_delete_message(data):
 
 @socketio.on('like_message')
 def handle_like_message(data):
-    like_message(data['message_id'], data['isLike'])
-    emit('like_message', data, broadcast=True)
+    res = like_message(data['message_id'], data['is_like'])
+    emit('get_messages', res, broadcast=True)
 
 
 @socketio.on('like_sub_message')
 def handle_like_sub_message(data):
-    like_sub_message(data['message_id'],
-                     data['sub_message_id'], data['isLike'])
-    emit('like_sub_message', data, broadcast=True)
+    res = like_sub_message(data['message_id'],
+                     data['sub_message_id'], data['is_like'])
+    emit('get_messages', res, broadcast=True)
 
 
 if __name__ == '__main__':

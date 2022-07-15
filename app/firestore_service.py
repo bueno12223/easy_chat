@@ -68,8 +68,9 @@ def update_sub_message(message_id, sub_message_id, message):
 
 
 def delete_message(message_id, sub_message_id):
+    print(message_id, sub_message_id is None)
     # get message by id
-    if(sub_message_id is not None):
+    if(sub_message_id is None):
         messages_ref = db.collection("messages")
         messages_ref.document(message_id).delete()
     else:
@@ -89,14 +90,15 @@ def get_sub_messages(messgaes_id):
     return data
 
 
-def like_message(message_id, isLike):
+def like_message(message_id, is_like):
     messages_ref = db.collection("messages")
-    if isLike:
+    if is_like:
         messages_ref.document(message_id).update(
             {'likes': firestore.Increment(1)})
     else:
         messages_ref.document(message_id).update(
             {'likes': firestore.Increment(-1)})
+    return get_messages()
 
 
 def like_sub_message(message_id, sub_message_id, isLike):
@@ -108,3 +110,4 @@ def like_sub_message(message_id, sub_message_id, isLike):
     else:
         sub_messages_ref.document(sub_message_id).update(
             {'likes': firestore.Increment(-1)})
+    return get_messages()
